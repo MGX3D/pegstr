@@ -7,76 +7,113 @@
 //		- minor tweaks to increase rendering speed. added logo. 
 // November 28th 2014
 //		- bug fixes
+// Updated by Nick Talavera, February 2022
+//      - Set peg hole size to be a consistent size
+//      - Simplified holder logic
+//      - Corrected calculations for the rotation of the upper curved peg
+//      - Added Peg_Length_Ratio_to_Board_Thickness to allow users to set peg length
+//      - Added Peg_Diameter_as_Percent_of_Hole_Size multiplier to calculate peg size
+//      - Added Hook_Rotation to allow user to set the upper curved peg curvature
+//      - Added Peg_Diameter_as_Percent_of_Hole_Size
+//      - Fixed holder body overlapping with cutout
+//      - Added user input of curved peg angle
+//      - Reorganized user inputs
+//      - Added GUI options for various user inputs
+//      - Added "Is Circle" option to simplify circular objects
+//      - Renamed "holder_y_count" to "holder_rows"
+//      - Renamed "fn" to "Circle_Resolution"
+//      - Renamed "taper_ratio" to "Holder_Taper_Scaling"
+//      - Renamed "wall_thickness" to "Space_Between_Holders"
+//      - Renamed "strength_factor" to "Support_Percent"
+//      - Renamed "holder_offset" to "Holder_Distance_From_Board"
+//      - Changed Closed_Bottom, Strength Factor, Holder_Cutout_Percent, and Holder_Taper_Scaling to a 0-100 scale for improving consistency and ease of use
+//      - Removed red color due to z-fighting
+//      - Removed difficult to print emblem
+//      - Moved Board_Thickness, Hole Size, and Hole Spacing to user inputs
 
-// preview[view:north, tilt:bottom diagonal]
+/* [Holders] */
+// Width of the orifice in mm
+holder_x_size = 10.2;
 
-// width of the orifice
-holder_x_size = 10;
+// Depth of the orifice in mm
+holder_y_size = 10.2;
 
-// depth of the orifice
-holder_y_size = 10;
-
-// hight of the holder
+// Height of the holder in mm
 holder_height = 15;
 
-// how thick are the walls. Hint: 6*extrusion width produces the best results.
-wall_thickness = 1.85;
+// Distance from the peg board in mm. Typically 0 unless you have an object that needs clearance
+Holder_Distance_From_Board = 0.0;
 
-// how many times to repeat the holder on X axis
+// Space between items as well as the outside wall thickness
+Space_Between_Holders = 1.85;
+
+// Number of holders in the left/right direction
 holder_x_count = 1;
 
-// how many times to repeat the holder on Y axis
-holder_y_count = 2;
+// Number of rows of holders
+holder_rows = 2;
 
-// orifice corner radius (roundness). Needs to be less than min(x,y)/2.
-corner_radius = 30;
+// Use values less than 100 to make the bottom of the holder narrow
+Holder_Taper_Scaling = 100;// [0:5:100]
 
-// Use values less than 1.0 to make the bottom of the holder narrow
-taper_ratio = 1.0;
+// what ratio of the holders bottom is reinforced to the plate
+Support_Percent = 100; //[0:1:100]
 
+// for bins: what ratio of wall thickness to use for closing the bottom. 100 is full
+closed_bottom = 0.0; //[0:1:100]
+
+// what percentage cu cut in the front (example to slip in a cable or make the tool snap from the side)
+Holder_Cutout_Percent = 0.0; //[0:1:100]
+
+// set an angle for the holder to prevent object from sliding or to view it better from the top
+holder_angle = 0.1; //[-90:0.1:45]
+
+/* [Corners] */
+
+// Sets the corner radius properly for circles. Only words if holder_x_size equals holder_y_size.
+Is_Circle=false;
+// Holder corner radius (roundness). Needs to be less than min(x,y)/2. If "Is Circle" is selected, this option is ignored.
+corner_radius_holder = 5.1;
+
+
+/* [Pegs] */
+//The amount of vertical rotation for the upper hook in degrees.
+Hook_Rotation=97;
+//The diameter is X percent of the pegboard's hole size.
+Peg_Diameter_as_Percent_of_Hole_Size=95;
+//How long the straight part of the peg as a multiplier of the board thickness.
+Peg_Length_Ratio_to_Board_Thickness=1.5;
+        
+/* [Pegboard Details] */
+Hole_Spacing = 25.4;
+Hole_Size = 6.0035;
+Board_Thickness = 4.9;
 
 /* [Advanced] */
 
-// offset from the peg board, typically 0 unless you have an object that needs clearance
-holder_offset = 0.0;
-
-// what ratio of the holders bottom is reinforced to the plate [0.0-1.0]
-strength_factor = 0.66;
-
-// for bins: what ratio of wall thickness to use for closing the bottom
-closed_bottom = 0.0;
-
-// what percentage cu cut in the front (example to slip in a cable or make the tool snap from the side)
-holder_cutout_side = 0.0;
-
-// set an angle for the holder to prevent object from sliding or to view it better from the top
-holder_angle = 0.0;
-
+// 1-100 what is the $fn parameter for holders
+Circle_Resolution = 60; //[0:100]
 
 /* [Hidden] */
 
 // what is the $fn parameter
-holder_sides = max(50, min(20, holder_x_size*2));
+holder_cutout_side = Holder_Cutout_Percent/100;
+holder_sides = max(Circle_Resolution, min(20, holder_x_size*2));
+corner_radius = Is_Circle && holder_x_size == holder_y_size ? holder_x_size/2 : corner_radius_holder;
 
-// dimensions the same outside US?
-hole_spacing = 25.4;
-hole_size = 6;//6.0035;
-board_thickness = 5;
+SPACER=0.03;
+peg_diameter=Hole_Size*Peg_Diameter_as_Percent_of_Hole_Size/100;
 
-
-holder_total_x = wall_thickness + holder_x_count*(wall_thickness+holder_x_size);
-holder_total_y = wall_thickness + holder_y_count*(wall_thickness+holder_y_size);
-holder_total_z = round(holder_height/hole_spacing)*hole_spacing;
+holder_total_x = Space_Between_Holders + holder_x_count*(Space_Between_Holders+holder_x_size);
+holder_total_y = Space_Between_Holders + holder_rows*(Space_Between_Holders+holder_y_size);
+holder_total_z = round(holder_height/Hole_Spacing)*Hole_Spacing;
 holder_roundness = min(corner_radius, holder_x_size/2, holder_y_size/2); 
 
 
-// what is the $fn parameter for holders
-fn = 32;
 
 epsilon = 0.1;
-
-clip_height = 2*hole_size + 2;
-$fn = fn;
+clip_height = 2*Hole_Size;
+$fn = Circle_Resolution;
 
 module round_rect_ex(x1, y1, x2, y2, z, r1, r2)
 {
@@ -106,203 +143,140 @@ module round_rect_ex(x1, y1, x2, y2, z, r1, r2)
     }
 }
 
-module old_pin(clip)
+module peg(clip)
 {
-	rotate([0,0,15])
-		cylinder(r=hole_size/2, h=board_thickness*1.5+epsilon, center=true, $fn=12);
-
+	cylinder(d=peg_diameter, h=Board_Thickness*Peg_Length_Ratio_to_Board_Thickness+epsilon, center=true, $fn=Circle_Resolution);
 	if (clip) {
-		//
-		rotate([0,0,90])
-		intersection() {
-			translate([0, 0, hole_size-epsilon])
-				cube([hole_size+2*epsilon, clip_height, 2*hole_size], center=true);
-
-			// [-hole_size/2 - 1.95,0, board_thickness/2]
-			translate([0, hole_size/2 + 2, board_thickness/2]) 
-				rotate([0, 90, 0])
-				rotate_extrude(convexity = 5, $fn=20)
-				translate([5, 0, 0])
-				 circle(r = (hole_size*0.95)/2); 
-			
-			translate([0, hole_size/2 + 2 - 1.6, board_thickness/2]) 
-				rotate([45,0,0])
-				translate([0, -0, hole_size*0.6])
-					cube([hole_size+2*epsilon, 3*hole_size, hole_size], center=true);
-		}
+			translate([-peg_diameter, 0, peg_diameter/2]) 
+        				rotate([90, 180-Hook_Rotation, 0])
+		rotate_extrude(angle=-Hook_Rotation,convexity=10) 
+        translate([-peg_diameter,0,0]) 
+        circle(d = peg_diameter);
 	}
 }
 
-module pin(clip)
-{
-	rotate([0,0,15])
-		#cylinder(r=hole_size/2, h=board_thickness*1.5+epsilon, center=true, $fn=12);
-
-	if (clip) {
-		//
-		rotate([0,0,90])
-		intersection() {
-			translate([0, 0, hole_size-epsilon])
-				cube([hole_size+2*epsilon, clip_height, 2*hole_size], center=true);
-
-			// [-hole_size/2 - 1.95,0, board_thickness/2]
-			translate([0, hole_size/2 + 2, board_thickness/2]) 
-				rotate([0, 90, 0])
-				rotate_extrude(convexity = 5, $fn=20)
-				translate([5, 0, 0])
-				 circle(r = (hole_size*0.95)/2); 
-			
-			translate([0, hole_size/2 + 2 - 1.6, board_thickness/2]) 
-				rotate([45,0,0])
-				translate([0, -0, hole_size*0.6])
-					cube([hole_size+2*epsilon, 3*hole_size, hole_size], center=true);
-		}
-	}
-}
-
-
-module pinboard_clips() 
+module pegboard_clips() 
 {
 	rotate([0,90,0])
-	for(i=[0:round(holder_total_x/hole_spacing)]) {
-		for(j=[0:max(strength_factor, round(holder_height/hole_spacing))]) {
+	for(i=[0:round(holder_total_x/Hole_Spacing)]) {
+		for(j=[0:max((Support_Percent/100), round(holder_height/Hole_Spacing))]) {
 
 			translate([
-				j*hole_spacing, 
-				-hole_spacing*(round(holder_total_x/hole_spacing)/2) + i*hole_spacing, 
+				j*Hole_Spacing, 
+				-Hole_Spacing*(round(holder_total_x/Hole_Spacing)/2) + i*Hole_Spacing, 
 				0])
-					pin(j==0);
+					peg(j==0);
 		}
 	}
 }
 
-module pinboard(clips)
+module pegboard(clips)
 {
 	rotate([0,90,0])
-	translate([-epsilon, 0, -wall_thickness - board_thickness/2 + epsilon])
+	translate([-epsilon, 0, -Space_Between_Holders - Board_Thickness/2 + epsilon])
 	hull() {
-		translate([-clip_height/2 + hole_size/2, 
-			-hole_spacing*(round(holder_total_x/hole_spacing)/2),0])
-			cylinder(r=hole_size/2, h=wall_thickness);
+		translate([-clip_height/2 + Hole_Size/2, 
+			-Hole_Spacing*(round(holder_total_x/Hole_Spacing)/2),0])
+			cylinder(r=Hole_Size/2, h=Space_Between_Holders);
 
-		translate([-clip_height/2 + hole_size/2, 
-			hole_spacing*(round(holder_total_x/hole_spacing)/2),0])
-			cylinder(r=hole_size/2,  h=wall_thickness);
+		translate([-clip_height/2 + Hole_Size/2, 
+			Hole_Spacing*(round(holder_total_x/Hole_Spacing)/2),0])
+			cylinder(r=Hole_Size/2,  h=Space_Between_Holders);
 
-		translate([max(strength_factor, round(holder_height/hole_spacing))*hole_spacing,
-			-hole_spacing*(round(holder_total_x/hole_spacing)/2),0])
-			cylinder(r=hole_size/2, h=wall_thickness);
+		translate([max((Support_Percent/100), round(holder_height/Hole_Spacing))*Hole_Spacing,
+			-Hole_Spacing*(round(holder_total_x/Hole_Spacing)/2),0])
+			cylinder(r=Hole_Size/2, h=Space_Between_Holders);
 
-		translate([max(strength_factor, round(holder_height/hole_spacing))*hole_spacing,
-			hole_spacing*(round(holder_total_x/hole_spacing)/2),0])
-			cylinder(r=hole_size/2,  h=wall_thickness);
+		translate([max((Support_Percent/100), round(holder_height/Hole_Spacing))*Hole_Spacing,
+			Hole_Spacing*(round(holder_total_x/Hole_Spacing)/2),0])
+			cylinder(r=Hole_Size/2,  h=Space_Between_Holders);
 
 	}
 }
 
-module holder(negative)
+module holder(indicator)
 {
 	for(x=[1:holder_x_count]){
-		for(y=[1:holder_y_count]) 
+		for(y=[1:holder_rows]) 
 /*		render(convexity=2)*/ {
-			translate([
-				-holder_total_y /*- (holder_y_size+wall_thickness)/2*/ + y*(holder_y_size+wall_thickness) + wall_thickness,
 
-				-holder_total_x/2 + (holder_x_size+wall_thickness)/2 + (x-1)*(holder_x_size+wall_thickness) + wall_thickness/2,
+        y_tapered = holder_y_size*Holder_Taper_Scaling/100;
+        x_tapered = holder_x_size*Holder_Taper_Scaling/100;
+        roundness_tapered = holder_roundness*Holder_Taper_Scaling/100 + epsilon;
+        three_height = 3*max(holder_height, Hole_Spacing);
+        y_side_space = holder_y_size + 2*Space_Between_Holders;
+        x_side_space = holder_x_size + 2*Space_Between_Holders;
+        height_w_epsilon = holder_height+2*epsilon;
+        roundness_w_epsilon = holder_roundness + epsilon;
+
+			translate([
+				-holder_total_y /*- (holder_y_size+Space_Between_Holders)/2*/ + y*(holder_y_size+Space_Between_Holders) + Space_Between_Holders,
+
+				-holder_total_x/2 + (holder_x_size+Space_Between_Holders)/2 + (x-1)*(holder_x_size+Space_Between_Holders) + Space_Between_Holders/2,
 				 0])			
 	{
 		rotate([0, holder_angle, 0])
 		translate([
-			-wall_thickness*abs(sin(holder_angle))-0*abs((holder_y_size/2)*sin(holder_angle))-holder_offset-(holder_y_size + 2*wall_thickness)/2 - board_thickness/2,
+			-Space_Between_Holders*abs(sin(holder_angle))-0*abs((holder_y_size/2)*sin(holder_angle))-Holder_Distance_From_Board-SPACER*2-(y_side_space)/2 - Board_Thickness/2,
 			0,
 			-(holder_height/2)*sin(holder_angle) - holder_height/2 + clip_height/2
 		])
+        
 		difference() {
-			if (!negative)
-
-				round_rect_ex(
-					(holder_y_size + 2*wall_thickness), 
-					holder_x_size + 2*wall_thickness, 
-					(holder_y_size + 2*wall_thickness)*taper_ratio, 
-					(holder_x_size + 2*wall_thickness)*taper_ratio, 
-					holder_height, 
-					holder_roundness + epsilon, 
-					holder_roundness*taper_ratio + epsilon);
-
-				translate([0,0,closed_bottom*wall_thickness])
-
-				if (negative>1) {
+                
+				translate([0,0,
+                        !indicator ? 0: (closed_bottom/100)*Space_Between_Holders])
 					round_rect_ex(
-						holder_y_size*taper_ratio, 
-						holder_x_size*taper_ratio, 
-						holder_y_size*taper_ratio, 
-						holder_x_size*taper_ratio, 
-						3*max(holder_height, hole_spacing),
-						holder_roundness*taper_ratio + epsilon, 
-						holder_roundness*taper_ratio + epsilon);
-				} else {
-					round_rect_ex(
+                        !indicator ? y_side_space:
+                        indicator>1 ? y_tapered:
 						holder_y_size, 
+                        !indicator ? x_side_space:
+                        indicator>1 ? x_tapered:
 						holder_x_size, 
-						holder_y_size*taper_ratio, 
-						holder_x_size*taper_ratio, 
-						holder_height+2*epsilon,
-						holder_roundness + epsilon, 
-						holder_roundness*taper_ratio + epsilon);
-				}
-
-			if (!negative)
-				if (holder_cutout_side > 0) {
-
-				if (negative>1) {
-					hull() {
+                        !indicator ? y_side_space * Holder_Taper_Scaling / 100:
+						y_tapered, 
+                        !indicator ? x_side_space * Holder_Taper_Scaling / 100:
+						x_tapered, 
+                        !indicator ? holder_height:
+                        indicator>1 ? three_height:
+						height_w_epsilon,
+                        indicator>1 ? roundness_tapered:
+						roundness_w_epsilon, 
+						roundness_tapered);
+                        
+			if (!indicator && holder_cutout_side > 0)
+					hull() 
+                    {
 						scale([1.0, holder_cutout_side, 1.0])
-		 					round_rect_ex(
-							holder_y_size*taper_ratio, 
-							holder_x_size*taper_ratio, 
-							holder_y_size*taper_ratio, 
-							holder_x_size*taper_ratio, 
-							3*max(holder_height, hole_spacing),
-							holder_roundness*taper_ratio + epsilon, 
-							holder_roundness*taper_ratio + epsilon);
+                            
+					round_rect_ex(
+                        indicator>1 ? y_tapered:
+						holder_y_size, 
+                        indicator>1 ? x_tapered:
+						holder_x_size, 
+						y_tapered, 
+						x_tapered, 
+                        indicator>1 ? three_height:
+						height_w_epsilon,
+                        indicator>1 ? roundness_tapered:
+						roundness_w_epsilon, 
+						roundness_tapered);
 		
-						translate([0-(holder_y_size + 2*wall_thickness), 0,0])
+						translate([0-(y_side_space), 0,0])
 						scale([1.0, holder_cutout_side, 1.0])
-		 					round_rect_ex(
-							holder_y_size*taper_ratio, 
-							holder_x_size*taper_ratio, 
-							holder_y_size*taper_ratio, 
-							holder_x_size*taper_ratio, 
-							3*max(holder_height, hole_spacing),
-							holder_roundness*taper_ratio + epsilon, 
-							holder_roundness*taper_ratio + epsilon);
-					}
-				} else {
-					hull() {
-						scale([1.0, holder_cutout_side, 1.0])
-		 					round_rect_ex(
-							holder_y_size, 
-							holder_x_size, 
-							holder_y_size*taper_ratio, 
-							holder_x_size*taper_ratio, 
-							holder_height+2*epsilon,
-							holder_roundness + epsilon, 
-							holder_roundness*taper_ratio + epsilon);
-		
-						translate([0-(holder_y_size + 2*wall_thickness), 0,0])
-						scale([1.0, holder_cutout_side, 1.0])
-		 					round_rect_ex(
-							holder_y_size, 
-							holder_x_size, 
-							holder_y_size*taper_ratio, 
-							holder_x_size*taper_ratio, 
-							holder_height+2*epsilon,
-							holder_roundness + epsilon, 
-							holder_roundness*taper_ratio + epsilon);
-						}
-					}
-
-				}
+					round_rect_ex(
+                        indicator>1 ? y_tapered:
+						holder_y_size, 
+                        indicator>1 ? x_tapered:
+						holder_x_size, 
+						y_tapered, 
+						x_tapered, 
+                        indicator>1 ? three_height:
+						height_w_epsilon,
+                        indicator>1 ? roundness_tapered:
+						roundness_w_epsilon, 
+						roundness_tapered);
+                    }
 			}
 		} // positioning
 	} // for y
@@ -315,83 +289,43 @@ module pegstr()
 	difference() {
 		union() {
 
-			pinboard();
+			pegboard();
 
 
-			difference() {
+			difference() 
+            {
 				hull() {
-					pinboard();
+					pegboard();
 	
 					intersection() {
-						translate([-holder_offset - (strength_factor-0.5)*holder_total_y - wall_thickness/4,0,0])
+						translate([-Holder_Distance_From_Board - ((Support_Percent/100)-0.5)*holder_total_y - Space_Between_Holders/4,0,0])
 						cube([
-							holder_total_y + 2*wall_thickness, 
-							holder_total_x + wall_thickness, 
+							holder_total_y + 2*Space_Between_Holders-(holder_y_size*Holder_Taper_Scaling/100*holder_cutout_side), 
+							holder_total_x + Space_Between_Holders, 
 							2*holder_height
 						], center=true);
-	
+////	
 						holder(0);
-	
+//	
 					}	
 				}
 
-				if (closed_bottom*wall_thickness < epsilon) {
+				if ((closed_bottom/100)*Space_Between_Holders < epsilon) {
 						holder(2);
 				}
 
 			}
 
-			//color([0.2,0.5,0])
 			difference() {
 				holder(0);
 				holder(2);
 			}
 
-			color([0,0,0])
-			pinboard_clips();
+			color([1,0,0])
+				pegboard_clips();
 		}
 	
 		holder(1);
-
-		translate([-board_thickness/2,-1,-clip_height+5]) 
-		rotate([-90,0,90]) {
-			intersection() {
-				union() {
-					difference() {
-						round_rect_ex(3, 10, 3, 10, 2, 1, 1);
-						round_rect_ex(2, 9, 2, 9, 3, 1, 1);
-					}
-			
-					translate([2.5, 0, 0]) 
-						difference() {
-							round_rect_ex(3, 10, 3, 10, 2, 1, 1);
-							round_rect_ex(2, 9, 2, 9, 3, 1, 1);
-						}
-				}
-			
-				translate([0, -3.5, 0]) 
-					cube([20,4,10], center=true);
-			}
-		
-			translate([1.25, -2.5, 0]) 
-				difference() {
-					round_rect_ex(8, 7, 8, 7, 2, 1, 1);
-					round_rect_ex(7, 6, 7, 6, 3, 1, 1);
-		
-					translate([3,0,0])
-						cube([4,2.5,3], center=true);
-				}
-		
-		
-			translate([2.0, -1.0, 0]) 
-				cube([8, 0.5, 2], center=true);
-		
-			translate([0,-2,0])
-				cylinder(r=0.25, h=2, center=true, $fn=12);
-		
-			translate([2.5,-2,0])
-				cylinder(r=0.25, h=2, center=true, $fn=12);
-		}
 
 	}
 }
