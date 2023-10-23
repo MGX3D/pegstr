@@ -11,10 +11,10 @@
 // preview[view:north, tilt:bottom diagonal]
 
 // width of the orifice
-holder_x_size = 10;
+holder_x_size = 10.01;
 
 // depth of the orifice
-holder_y_size = 10;
+holder_y_size = 10.01;
 
 // hight of the holder
 holder_height = 15;
@@ -47,11 +47,13 @@ strength_factor = 0.66;
 closed_bottom = 0.0;
 
 // what percentage cu cut in the front (example to slip in a cable or make the tool snap from the side)
-holder_cutout_side = 0.0;
+holder_cutout_side = 0.00; // [0:0.1:10] 
+//added to add decimals to customizer
 
 // set an angle for the holder to prevent object from sliding or to view it better from the top
 holder_angle = 0.0;
 
+honeycomb_storage_wall = false;
 
 /* [Hidden] */
 
@@ -310,6 +312,15 @@ module holder(negative)
 }
 
 
+module hexagons()
+{
+    hexagon_height = clip_height - 13.3;
+    translate([-2.5,0,-hexagon_height]) {
+        rotate([90,0,90])
+        cylinder(d=18, h=14, $fn=6);
+    }
+}
+
 module pegstr() 
 {
 	difference() {
@@ -346,14 +357,16 @@ module pegstr()
 				holder(0);
 				holder(2);
 			}
-
-			color([0,0,0])
-			pinboard_clips();
+            if(honeycomb_storage_wall)
+                hexagons();
+            else
+                color([0,0,0])
+                pinboard_clips();
 		}
 	
 		holder(1);
 
-		translate([-board_thickness/2,-1,-clip_height+5]) 
+		translate([-board_thickness/2,-1,-clip_height-5]) 
 		rotate([-90,0,90]) {
 			intersection() {
 				union() {

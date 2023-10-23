@@ -1,0 +1,28 @@
+{
+    "parameterSets": {
+        "atomic-beam flashlight": {
+            "board_thickness": "5",
+            "closed_bottom": "0",
+            "corner_radius": "30",
+            "epsilon": "0.1",
+            "fn": "32",
+            "holder_angle": "0",
+            "holder_cutout_side": "0.8",
+            "holder_height": "10",
+            "holder_offset": "1",
+            "holder_total_x": "100",
+            "holder_total_y": "100",
+            "holder_total_z": "1000",
+            "holder_x_count": "1",
+            "holder_x_size": "25.5",
+            "holder_y_count": "1",
+            "holder_y_size": "25.5",
+            "hole_size": "6",
+            "hole_spacing": "25.4",
+            "strength_factor": "0.22",
+            "taper_ratio": "1",
+            "wall_thickness": "1.85"
+        }
+    },
+    "fileFormatVersion": "1"
+}
