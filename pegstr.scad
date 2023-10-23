@@ -310,6 +310,15 @@ module holder(negative)
 }
 
 
+module hexagons()
+{
+    hexagon_height = clip_height - 13.3;
+    translate([-2.5,0,-hexagon_height]) {
+        rotate([90,0,90])
+        cylinder(d=18, h=14, $fn=6);
+    }
+}
+
 module pegstr() 
 {
 	difference() {
@@ -347,13 +356,14 @@ module pegstr()
 				holder(2);
 			}
 
-			color([0,0,0])
-			pinboard_clips();
+			//color([0,0,0])
+			//pinboard_clips();
+            hexagons();
 		}
 	
 		holder(1);
 
-		translate([-board_thickness/2,-1,-clip_height+5]) 
+		translate([-board_thickness/2,-1,-clip_height-2]) 
 		rotate([-90,0,90]) {
 			intersection() {
 				union() {
